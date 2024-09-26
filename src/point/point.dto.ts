@@ -1,9 +1,20 @@
-import { IsInt } from 'class-validator';
+import { IsInt, IsNotEmpty, IsOptional } from 'class-validator';
 import { PointHistory, TransactionType, UserPoint } from './point.model';
 
 export class PointBody {
     @IsInt()
     amount: number;
+}
+
+export class basePointRequest {
+    @IsNotEmpty()
+    userId: number;
+
+    @IsNotEmpty()
+    amount: number;
+
+    @IsOptional()
+    type?: TransactionType;
 }
 
 export class PointDataDto {
@@ -18,18 +29,18 @@ export class PointDataDto {
     }
 }
 
-// export class PointHistoryDto {
-//     id: number;
-//     userId: number;
-//     type: TransactionType;
-//     amount: number;
-//     timeMillis: number;
+export class HistoryDataDto {
+    readonly id: number;
+    readonly userId: number;
+    readonly amount: number;
+    readonly type: TransactionType;
+    readonly timeMillis: number;
 
-//     constructor(pointHistory: PointHistory) {
-//         this.id = pointHistory.id;
-//         this.userId = pointHistory.userId;
-//         this.type = pointHistory.type;
-//         this.amount = pointHistory.amount;
-//         this.timeMillis = pointHistory.timeMillis;
-//     }
-// }
+    constructor(pointHistory: PointHistory) {
+        this.id = pointHistory.id;
+        this.userId = pointHistory.userId;
+        this.amount = pointHistory.amount;
+        this.type = pointHistory.type;
+        this.timeMillis = pointHistory.timeMillis;
+    }
+}
