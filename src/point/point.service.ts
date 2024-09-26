@@ -5,6 +5,7 @@ import {
     UserPointRepository,
     PointHistoryRepository,
 } from './point.repository';
+import { Mutex } from 'async-mutex';
 
 @Injectable()
 export class PointService {
@@ -12,10 +13,20 @@ export class PointService {
         private readonly userPpointRepo: UserPointRepository,
         private readonly pointHistoryRepo: PointHistoryRepository,
     ) {}
+    private lockTable: Record<number, Mutex> = {};
+
+    async mutex(userId: number) {
+        if (!this.lockTable[userId]) {
+            this.lockTable[userId] = new Mutex();
+            return this.lockTable[userId];
+        }
+        return this.lockTable[userId];
+    }
 
     // 특정 유저 포인트 조회
     async findOne(id: number): Promise<UserPoint> {
-        return await this.userPpointRepo.selectById(id);
+        const data = await this.userPpointRepo.selectById(id);
+        return new PointDataDto(data);
     }
 
     // 특정 유저 포인트 히스토리 리스트 조회
@@ -26,8 +37,10 @@ export class PointService {
 
     // 유저 포인트 업데이트, 기록 추가
     async updatePoint({ userId, amount, type }: basePointRequest) {
+        const mutex = await this.mutex(userId);
+        const release = await mutex.acquire();
         // 포인트 업데이트
-        let updatedUserPoint;
+        let updatedUserPoint: UserPoint;
         const exUser = await this.findOne(userId);
         const calcPoint = type === TransactionType.CHARGE ? amount : -amount;
 
@@ -43,13 +56,14 @@ export class PointService {
             );
         }
 
-        // 포인트 기록 추가
         await this.pointHistoryRepo.insert(
             userId,
             amount,
             type,
             updatedUserPoint.updateMillis,
         );
+
+        release();
 
         return new PointDataDto(updatedUserPoint);
     }
@@ -72,16 +86,15 @@ export class PointService {
             amount,
             type: TransactionType.CHARGE,
         };
-        const updatedUserPoint = await this.updatePoint(values);
 
-        return updatedUserPoint;
+        return await this.updatePoint(values);
     }
 
     // 포인트 사용
     async useOrUpdate({ userId, amount }: basePointRequest) {
         // 0 이나 음수 포인트 사용 테스트
         if (amount < 1)
-            throw new BadRequestException('사용 포인트를 확인해주세요.');
+            throw new BadRequestException('포인트 사용은 0을 초과합니다.');
 
         // 잔고가 부족할 경우 테스트
         const exUserPoint = await this.findOne(userId);
@@ -96,8 +109,7 @@ export class PointService {
             amount,
             type: TransactionType.USE,
         };
-        const updatedUserPoint = await this.updatePoint(values);
 
-        return updatedUserPoint;
+        return await this.updatePoint(values);
     }
 }

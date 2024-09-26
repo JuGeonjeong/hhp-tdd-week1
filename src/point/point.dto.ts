@@ -1,4 +1,4 @@
-import { IsInt } from 'class-validator';
+import { IsInt, IsNotEmpty, IsOptional } from 'class-validator';
 import { PointHistory, TransactionType, UserPoint } from './point.model';
 
 export class PointBody {
@@ -7,8 +7,13 @@ export class PointBody {
 }
 
 export class basePointRequest {
+    @IsNotEmpty()
     userId: number;
+
+    @IsNotEmpty()
     amount: number;
+
+    @IsOptional()
     type?: TransactionType;
 }
 
@@ -33,7 +38,7 @@ export class HistoryDataDto {
 
     constructor(pointHistory: PointHistory) {
         this.id = pointHistory.id;
-        this.userId = pointHistory.id;
+        this.userId = pointHistory.userId;
         this.amount = pointHistory.amount;
         this.type = pointHistory.type;
         this.timeMillis = pointHistory.timeMillis;
