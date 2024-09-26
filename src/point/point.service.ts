@@ -56,14 +56,14 @@ export class PointService {
             );
         }
 
+        release();
+
         await this.pointHistoryRepo.insert(
             userId,
             amount,
             type,
             updatedUserPoint.updateMillis,
         );
-
-        release();
 
         return new PointDataDto(updatedUserPoint);
     }
