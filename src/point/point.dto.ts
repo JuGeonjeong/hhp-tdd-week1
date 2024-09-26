@@ -6,6 +6,12 @@ export class PointBody {
     amount: number;
 }
 
+export class basePointRequest {
+    userId: number;
+    amount: number;
+    type?: TransactionType;
+}
+
 export class PointDataDto {
     readonly id: number;
     readonly point: number;
@@ -18,18 +24,18 @@ export class PointDataDto {
     }
 }
 
-// export class PointHistoryDto {
-//     id: number;
-//     userId: number;
-//     type: TransactionType;
-//     amount: number;
-//     timeMillis: number;
+export class HistoryDataDto {
+    readonly id: number;
+    readonly userId: number;
+    readonly amount: number;
+    readonly type: TransactionType;
+    readonly timeMillis: number;
 
-//     constructor(pointHistory: PointHistory) {
-//         this.id = pointHistory.id;
-//         this.userId = pointHistory.userId;
-//         this.type = pointHistory.type;
-//         this.amount = pointHistory.amount;
-//         this.timeMillis = pointHistory.timeMillis;
-//     }
-// }
+    constructor(pointHistory: PointHistory) {
+        this.id = pointHistory.id;
+        this.userId = pointHistory.id;
+        this.amount = pointHistory.amount;
+        this.type = pointHistory.type;
+        this.timeMillis = pointHistory.timeMillis;
+    }
+}

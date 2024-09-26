@@ -6,10 +6,9 @@ import {
     Patch,
     ValidationPipe,
 } from '@nestjs/common';
-import { PointHistory, UserPoint } from './point.model';
-import { PointDataDto, PointBody as PointDto } from './point.dto';
-
+import { PointBody as PointDto } from './point.dto';
 import { PointService } from './point.service';
+import { PointHistory, UserPoint } from './point.model';
 
 @Controller('/point')
 export class PointController {
@@ -21,8 +20,8 @@ export class PointController {
     @Get(':id')
     async point(@Param('id') id): Promise<UserPoint> {
         const userId = Number.parseInt(id);
-        const data = await this.pointService.findOne(userId);
-        return new PointDataDto(data);
+
+        return await this.pointService.findOne(userId);
     }
 
     /**

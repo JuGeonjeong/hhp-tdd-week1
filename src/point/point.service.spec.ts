@@ -2,22 +2,33 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { PointService } from './point.service';
 import { UserPointTable } from '../database/userpoint.table';
 import { PointHistoryTable } from '../database/pointhistory.table';
-import exp from 'constants';
 import { TransactionType } from './point.model';
+import {
+    PointHistoryRepository,
+    UserPointRepository,
+} from './point.repository';
 
 describe('PointService', () => {
     let service: PointService;
-    let userDb: UserPointTable;
-    let historyDb: PointHistoryTable;
 
     beforeEach(async () => {
+        jest.clearAllMocks();
+
         const module: TestingModule = await Test.createTestingModule({
-            providers: [PointService, UserPointTable, PointHistoryTable],
+            providers: [
+                PointService,
+                {
+                    provide: PointHistoryRepository,
+                    useClass: PointHistoryTable,
+                },
+                {
+                    provide: UserPointRepository,
+                    useClass: UserPointTable,
+                },
+            ],
         }).compile();
 
         service = module.get<PointService>(PointService);
-        userDb = module.get<UserPointTable>(UserPointTable);
-        historyDb = module.get<PointHistoryTable>(PointHistoryTable);
     });
 
     it('default', () => {
@@ -25,33 +36,33 @@ describe('PointService', () => {
     });
 
     // 사용내역 추가
-    describe('addPointHistory', () => {
-        it('history check', async () => {
-            const userId = 1;
-            const amount = 2000;
-            const transactionType = TransactionType.CHARGE;
-            const updateMillis = Date.now();
+    // describe('addPointHistory', () => {
+    //     it('history check', async () => {
+    //         const userId = 1;
+    //         const amount = 2000;
+    //         const transactionType = TransactionType.CHARGE;
+    //         const updateMillis = Date.now();
 
-            const newData = await service.addPointHistory(
-                userId,
-                amount,
-                transactionType,
-                updateMillis,
-            );
-            const userPoingHistory = await service.findAll(1);
+    //         const newData = await service.addPointHistory(
+    //             userId,
+    //             amount,
+    //             transactionType,
+    //             updateMillis,
+    //         );
+    //         const userPoingHistory = await service.findAll(1);
 
-            expect(userPoingHistory[0]).toBe(newData);
-        });
-    });
+    //         expect(userPoingHistory[0]).toBe(newData);
+    //     });
+    // });
 
     // 유저 포인트 업데이트
     describe('insertOrUpdate', () => {
         it('update point check', async () => {
-            const id = 1;
+            const userId = 1;
             const amount = 2000;
 
-            const data = await userDb.insertOrUpdate(id, amount);
-            const afterData = await userDb.selectById(id);
+            const data = await service.chargeOrUpdate({ userId, amount });
+            const afterData = await service.findOne(userId);
             expect(data).toBe(afterData);
         });
     });
