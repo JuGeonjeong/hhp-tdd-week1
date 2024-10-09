@@ -6,8 +6,6 @@ import {
     PointHistoryRepository,
     UserPointRepository,
 } from './point.repository';
-import { PointHistoryTable } from '../database/pointhistory.table';
-import { UserPointTable } from '../database/userpoint.table';
 
 @Module({
     imports: [DatabaseModule],
@@ -15,12 +13,12 @@ import { UserPointTable } from '../database/userpoint.table';
     providers: [
         PointService,
         {
-            provide: UserPointRepository,
-            useClass: UserPointTable,
+            provide: 'userPointRepo',
+            useClass: UserPointRepository,
         },
         {
-            provide: PointHistoryRepository,
-            useClass: PointHistoryTable,
+            provide: 'pointHistoryRepo',
+            useClass: PointHistoryRepository,
         },
     ],
 })

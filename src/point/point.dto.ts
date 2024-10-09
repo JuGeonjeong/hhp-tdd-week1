@@ -1,8 +1,9 @@
-import { IsInt, IsNotEmpty, IsOptional } from 'class-validator';
+import { IsInt, IsNotEmpty, IsOptional, Min } from 'class-validator';
 import { PointHistory, TransactionType, UserPoint } from './point.model';
 
 export class PointBody {
     @IsInt()
+    @Min(1, { message: '값은 1이상입니다.' })
     amount: number;
 }
 

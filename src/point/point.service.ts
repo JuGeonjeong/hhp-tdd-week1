@@ -6,12 +6,16 @@ import {
     PointHistoryRepository,
 } from './point.repository';
 import { Mutex } from 'async-mutex';
+import {
+    iPointHistoryRepository,
+    iUserPointRepository,
+} from './point.repository.interface';
 
 @Injectable()
 export class PointService {
     constructor(
-        private readonly userPpointRepo: UserPointRepository,
-        private readonly pointHistoryRepo: PointHistoryRepository,
+        private readonly userPointRepo: iUserPointRepository,
+        private readonly pointHistoryRepo: iPointHistoryRepository,
     ) {}
     private lockTable: Record<number, Mutex> = {};
 
@@ -25,7 +29,7 @@ export class PointService {
 
     // 특정 유저 포인트 조회
     async findOne(id: number): Promise<UserPoint> {
-        const data = await this.userPpointRepo.selectById(id);
+        const data = await this.userPointRepo.selectById(id);
         return new PointDataDto(data);
     }
 
@@ -45,12 +49,12 @@ export class PointService {
         const calcPoint = type === TransactionType.CHARGE ? amount : -amount;
 
         if (userId) {
-            updatedUserPoint = await this.userPpointRepo.insertOrUpdate(
+            updatedUserPoint = await this.userPointRepo.insert(
                 userId,
                 exUser.point + calcPoint,
             );
         } else {
-            updatedUserPoint = await this.userPpointRepo.insertOrUpdate(
+            updatedUserPoint = await this.userPointRepo.insert(
                 userId,
                 calcPoint,
             );
