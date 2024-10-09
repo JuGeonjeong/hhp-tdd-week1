@@ -8,6 +8,7 @@ export interface iUserPointRepository {
 
 export interface iPointHistoryRepository {
     selectAllByUserId(userId: number): Promise<PointHistory[]>;
+
     insert(
         userId: number,
         amount: number,
