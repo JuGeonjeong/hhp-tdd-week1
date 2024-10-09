@@ -43,7 +43,6 @@ export class PointService {
     async updatePoint({ userId, amount, type }: basePointRequest) {
         const mutex = await this.mutex(userId);
         const release = await mutex.acquire();
-        // 포인트 업데이트
         let updatedUserPoint: UserPoint;
         const exUser = await this.findOne(userId);
         const calcPoint = type === TransactionType.CHARGE ? amount : -amount;
